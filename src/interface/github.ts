@@ -182,7 +182,7 @@ interface PullRequestLinks {
 interface Link {
     href: string;
 }
-export interface PullRequestResponse {
+export interface PullRequestData {
     url: string;
     id: number;
     node_id: string;
@@ -220,4 +220,47 @@ export interface PullRequestResponse {
     auto_merge: boolean | null;
     draft: boolean;
 
+}
+
+
+interface UrlSha {
+    url: string;
+    sha: string;
+}
+
+interface CommitVerification {
+    verified: boolean;
+    reason: string;
+    signature: string | null;
+    payload: string | null;
+    verified_at: string | null;
+}
+
+interface UserData {
+    name: string,
+    email: string,
+    date: string,
+}
+
+interface Commit {
+    url: string;
+    author: UserData;
+    committer: UserData;
+    message: string;
+    tree: UrlSha;
+    comment_count: number;
+    verification: CommitVerification;
+}
+
+
+export interface CommitData {
+    url: string;
+    sha: string;
+    node_id: string;
+    html_url: string;
+    comments_url: string;
+    commit: Commit;
+    author: User;
+    committer: User;
+    parents: UrlSha[];
 }
