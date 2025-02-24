@@ -1,0 +1,26 @@
+{
+  "name": "vm-azure-func",
+  "version": "1.0.0",
+  "description": "List of azure functions to get data from different data sources",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@types/validator": "^13.12.2",
+    "axios": "^1.7.9",
+    "validator": "^13.12.0",
+    "wiremock-rest-client": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "rimraf": "^5.0.0",
+    "typescript": "^4.0.0"
+  },
+  "main": "dist/src/{index.js,functions/*.js}"
+}
