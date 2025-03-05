@@ -2,8 +2,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { locals } from '../helpers/locals';
 import { CommitData, PullRequestData } from '../interface/github';
+import { logger } from '../functions/github/listPullRequest';
 
-const dataDir = path.join(__dirname, '../../../stub/github');
+const dataDir = path.join(__dirname, '../../../stubs/github');
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -13,12 +14,11 @@ async function storePullRequest(pullRequest: PullRequestData) {
     let pullRequests = [];
     if (fs.existsSync(filePath)) {
         const fileData = fs.readFileSync(filePath, 'utf8');
-        //If no filedata are present then create empty array
         pullRequests = fileData ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : [];
     }
     pullRequests.push({ type: 'pull_request', data: pullRequest });
     fs.writeFileSync(filePath, JSON.stringify(pullRequests, null, 2));
-    console.warn(`Pull request #${pullRequest.number} stored.`);
+    logger.info(`Pull request #${pullRequest.number} stored.`);
 }
 
 async function storeCommits(prNumber: number, commits: CommitData[]) {
@@ -27,12 +27,10 @@ async function storeCommits(prNumber: number, commits: CommitData[]) {
     if (fs.existsSync(filePath)) {
         const fileData = fs.readFileSync(filePath, 'utf8');
         allCommits = fileData ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : [];
-    }
-    
+    }    
     allCommits.push({ type: 'commits', pr: prNumber, data: commits });
-
     fs.writeFileSync(filePath, JSON.stringify(allCommits, null, 2));
-    console.log(`Commits for pull request #${prNumber} stored.`);
+    logger.info(`Commits for pull request #${prNumber} stored.`);
 }
 
 export {

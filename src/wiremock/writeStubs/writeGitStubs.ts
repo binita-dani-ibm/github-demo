@@ -2,12 +2,11 @@ import { WireMockRestClient } from "wiremock-rest-client";
 import prMapping from '../mappings/git_pr_mapping';
 import commitMapping from '../mappings/git_commits';
 
-const WIREMOCK_BASE_URL = "https://vmgithub.wiremockapi.cloud/";
-const API_CLIENT_TOKEN = "wmcp_r986l_5efdd47851c069c9a4544f784d4332bf_cd5e85e1";
+import config from '../../config';
 
-const wireMock = new WireMockRestClient(WIREMOCK_BASE_URL, {
+const wireMock = new WireMockRestClient(config.WIREMOCK_API_URL, {
     headers: {
-        Authorization: `Token ${API_CLIENT_TOKEN}`,
+        Authorization: `Token ${config.WIREMOCK_API_TOKEN}`,
     },
 });
 
@@ -112,7 +111,7 @@ const writePullRequests = async () => {
         
        
         console.log("Wiremock stub registered for Pull Requests");
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error registering mocks:", error);
     }
 };
@@ -162,7 +161,7 @@ const writeCommitsOfPR = async () => {
         };
         await wireMock.mappings.createMapping(stubMapping);
         console.log("Wiremock stub registered for Commits");
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error registering mocks:", error);
     }
 };
