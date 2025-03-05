@@ -5,5 +5,6 @@ import { listPullRequest } from "./github/listPullRequest";
 app.http('github-listPullRequest', {
     methods: ['GET'],
     authLevel: 'anonymous',
+    route: 'github/listPullRequest',
     handler: listPullRequest
 });
