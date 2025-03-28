@@ -13,12 +13,13 @@
     "test": "echo \"No tests yet...\"",
     "lint": "eslint ./src --ext .ts",
     "fixlint": "eslint ./src --fix",
-    "deleteGithubStub": "npx ts-node .\\src\\wiremock\\deleteStubs\\deleteGitStubs.ts",
-    "createGithubStub": "npx ts-node .\\src\\wiremock\\writeStubs\\writeGitStubs.ts"
+    "deleteStub": "npx ts-node .\\src\\wiremock\\deleteStubs\\index.ts",
+    "createStub": "npx ts-node .\\src\\wiremock\\writeStubs\\index.ts"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "joi": "^17.13.3",
     "qs": "^6.14.0",
     "winston": "^3.17.0",

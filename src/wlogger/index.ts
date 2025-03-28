@@ -3,22 +3,19 @@ import wConfig from "./wconfig";
 
 winston.addColors(wConfig.colors);
 
-const printFormat = winston.format.printf(
-  ({ level, message, timestamp }) => {
-    const date = new Date(timestamp as string | number | Date);    
-    return `${date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })} ${level.toLocaleUpperCase()}: ${message}`;
-  }
-);
-
+const printFormat = winston.format.printf(({ level, message, timestamp }) => {
+  const date = new Date(timestamp as string | number | Date);
+  return `${date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })} ${level.toLocaleUpperCase()}: ${message}`;
+});
 
 const format = winston.format.combine(
-  winston.format.timestamp(),  // Ensure timestamp is included in file logs as well
+  winston.format.timestamp(), // Ensure timestamp is included in file logs as well
   printFormat
 );
 
@@ -40,7 +37,7 @@ const wLogger = (input: { logName: string; level: string }): winston.Logger =>
       new winston.transports.File({
         filename: `./logs/${input.logName}/${input.logName}-Error.log`,
         level: "error",
-        format
+        format,
       }),
       // new winston.transports.File({
       //   filename: `./logs/${input.logName}/${input.logName}-Warn.log`,
@@ -61,7 +58,7 @@ const wLogger = (input: { logName: string; level: string }): winston.Logger =>
     rejectionHandlers: [
       new winston.transports.File({
         filename: "./logs/rejections.log",
-        format
+        format,
       }),
     ],
   });
@@ -80,5 +77,9 @@ if (process.env.NODE_ENV !== "production") {
     })
   );
 }
+
+export const ghLogger = wLogger({ logName: "github", level: "silly" });
+export const jLogger = wLogger({ logName: "jira", level: "silly" });
+export const wmLogger = wLogger({ logName: "wiremock", level: "silly" });
 
 export default wLogger;

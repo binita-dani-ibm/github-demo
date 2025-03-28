@@ -256,8 +256,12 @@ const PullRequestDataSchema = objectSchema({
   head: PullRequestSchema.required(),
   base: PullRequestSchema.required(),
   _links: LinksSchema.required(), // You can define this further if needed
-  author_association: _stringReqSchema
-    .valid("OWNER", "COLLABORATOR", "CONTRIBUTOR", "NONE"),
+  author_association: _stringReqSchema.valid(
+    "OWNER",
+    "COLLABORATOR",
+    "CONTRIBUTOR",
+    "NONE"
+  ),
   auto_merge: _boolReqSchema.allow(null),
   draft: _boolReqSchema,
 });
