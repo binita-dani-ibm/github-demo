@@ -56,6 +56,7 @@ const commitMapping = [
         "https://api.github.com/users/octocat/received_events",
       type: "User",
       site_admin: false,
+      user_view_type: "public",
     },
     committer: {
       login: "octocat",
@@ -79,6 +80,7 @@ const commitMapping = [
         "https://api.github.com/users/octocat/received_events",
       type: "User",
       site_admin: false,
+      user_view_type: "public",
     },
     parents: [
       {

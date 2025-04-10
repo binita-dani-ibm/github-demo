@@ -1,7 +1,7 @@
 import { HttpRequest, HttpResponseInit } from "@azure/functions";
 import { locals } from "../../helpers/locals";
 import { GithubError } from "../../errors/githubError";
-import { ghLogger } from "../../wlogger";
+import { logger } from "../../wlogger";
 import axios from "axios";
 import * as qs from "qs";
 
@@ -14,7 +14,7 @@ export async function listJiraPullRequest(
   request: HttpRequest
 ): Promise<HttpResponseInit> {
   try {
-    ghLogger.info(`Request URL123234: ${locals.request_url} ${request.url}`);
+    logger.info(`Request URL123234: ${locals.request_url} ${request.url}`);
     // Ensure the repository format is "owner/repository-name"
     const repoFormatted = `repo:${JIRA_REPO_NAME}`;
     // Construct the GitHub API query string with the repository and issue key
@@ -40,9 +40,9 @@ export async function listJiraPullRequest(
     };
   } catch (error: any) {
     if (error instanceof GithubError) {
-      ghLogger.error(`[${error.status}] ${error.message} ${error.url}`);
+      logger.error(`[${error.status}] ${error.message} ${error.url}`);
     } else {
-      ghLogger.error("An unknown error occurred");
+      logger.error("An unknown error occurred");
     }
     return {
       status: error.status,

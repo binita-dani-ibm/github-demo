@@ -13,8 +13,8 @@
     "test": "echo \"No tests yet...\"",
     "lint": "eslint ./src --ext .ts",
     "fixlint": "eslint ./src --fix",
-    "deleteStub": "npx ts-node .\\src\\wiremock\\deleteStubs\\index.ts",
-    "createStub": "npx ts-node .\\src\\wiremock\\writeStubs\\index.ts"
+    "deleteStubs": "npx ts-node .\\src\\wiremock\\deleteStubs\\index.ts",
+    "createStubs": "npx ts-node .\\src\\wiremock\\createStubs\\index.ts"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",

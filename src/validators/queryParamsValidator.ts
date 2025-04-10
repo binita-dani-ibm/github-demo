@@ -9,7 +9,7 @@ import {
   _directionOptSchema,
 } from "./schema";
 import { GithubError } from "../errors/githubError";
-import { ghLogger } from "../wlogger";
+import { logger } from "../wlogger";
 
 // Create a schema for query parameters
 const githubQuerySchema = objectSchema({
@@ -26,7 +26,7 @@ const githubQuerySchema = objectSchema({
 export function validateGithubQueryParams(response: any) {
   const { error, value } = githubQuerySchema.validate(response);
   if (error) {
-    ghLogger.error(`Invalid query parameters ${error.message}`);
+    logger.error(`Invalid query parameters ${error.message}`);
     throw new GithubError("400", `Invalid query params:: ${error.message}`, "");
   }
   // You can also return the validated response if you want

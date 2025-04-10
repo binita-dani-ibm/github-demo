@@ -1,47 +1,53 @@
 import axios from "axios";
 import { GithubError } from "../errors/githubError";
-import * as qs from "qs";
-import dotenv from 'dotenv';
-import { ghLogger } from "../wlogger";
+import { logger } from "../wlogger";
 import config from "../config";
+import { getGithubCommitsQueryRequest, getGithubHeaders, getGithubRequestQueryParams } from "../helpers/common";
+import dotenv from "dotenv";
+import { CommitData, PullRequestData } from "../interface/github";
+import { validateGithubPullRequestResponse, validateResponse } from "../validators/pullRequestValidator";
+import { validateGithubSearchResponse } from "../validators/pullRequestSearchValidator";
+import { validateCommitData } from "../validators/commitDataValidator";
 dotenv.config();
 const { GITHUB_REPO_NAME = "", GITHUB_TOKEN = "" } = process.env;
-const githubParams = config.GITHUB_PR_PARAMS;
-export async function getJiraIssueGithubPullRequest(key: string): Promise<any> {
-  try {
-    const repoFormatted = `repo:${GITHUB_REPO_NAME}`;
-    // Construct the GitHub API query string with the repository and issue key
-    const query = `${repoFormatted} type:pr in:title,body ${key}`;
-    let allResults: any[] = [];
-    //console.log('GitHub search query:', query);  // For debugging
-    let hasMore = true;
-    let currentPage = githubParams.startFromPageNo;
-    while (hasMore) {
-      // Make the API request with the token in the Authorization header
-      const response = await axios.get("https://api.github.com/search/issues", {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-        },
-        params: {
-          q: query,
-          per_page: githubParams.per_page,
-          page: currentPage,
-          state: githubParams.state,
-          sort: githubParams.sort,
-          direction: githubParams.direction,
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { indices: false });
-        },
-      });
 
-      if (response?.data?.items?.length > 0) {
-        const searchPRItems = response.data.items;
+
+export async function getGithubPullRequestWithSearch(key: string): Promise<PullRequestData[]> {
+  try {
+    const { GITHUB_PR_PARAMS, GITHUB_SEARCH_URL, GITHUB_API_URL } = config;
+    let allResults: any[] = [];
+    let hasMore = true;
+    let currentPage = GITHUB_PR_PARAMS.startFromPageNo;
+    while (hasMore) {
+      let request = await getGithubRequestQueryParams(
+        GITHUB_REPO_NAME,
+        key,
+        GITHUB_TOKEN,
+        currentPage
+      );
+      const url = `${GITHUB_API_URL}${GITHUB_SEARCH_URL}`;
+      // Make the API request with the token in the Authorization header
+      const response = await axios.get(url, request);
+      logger.info(
+        `Fetched response pull requests for Repo name ${GITHUB_REPO_NAME}`
+      );
+      const responseData: GithubSearchResponse = response.data;
+      console.log("Search Pull Request Response:::::::", JSON.stringify(responseData));
+      validateGithubSearchResponse(responseData);
+      if (responseData?.items?.length > 0) {
+        const searchPRItems = responseData.items;
+        
         for (let searchPRItem of searchPRItems) {
           if (searchPRItem?.pull_request?.url) {
-            const pullReqResponse = await getGithubPullRequest(searchPRItem?.pull_request?.url);
+            const pullReqResponse : PullRequestData = await getGithubPullRequest(
+              searchPRItem?.pull_request?.url
+            );
+
+            validateGithubPullRequestResponse(pullReqResponse);
+            console.log(`pullReqResponse::::::::::::::::::`, JSON.stringify(pullReqResponse));
             pullReqResponse.reactions = searchPRItem.reactions;
-            pullReqResponse.sub_issues_summary = searchPRItem.sub_issues_summary;
+            pullReqResponse.sub_issues_summary =
+              searchPRItem.sub_issues_summary;
             allResults.push(pullReqResponse);
           }
         }
@@ -52,49 +58,32 @@ export async function getJiraIssueGithubPullRequest(key: string): Promise<any> {
       ) {
         hasMore = false;
       }
-
-
       // Increment the page number for the next API request
       currentPage++;
     }
     return allResults;
   } catch (error: any) {
-    if (error instanceof GithubError) {
-      ghLogger.error(`[${error.status}] ${error.message} ${error.url}`);
-    } else {
-      ghLogger.error("An unknown error occurred");
-    }
-    return {
-      status: error.status,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: error.status, message: error.message }),
-    };
+    throw new GithubError(error?.status, error?.message, error?.url);
   }
 }
 
-export async function getGithubPullRequestCommits(githubPR: any): Promise<any> {
+export async function getGithubPullRequestCommits(commitsUrl: string): Promise<CommitData[]> {
   try {
-    const prUrl = githubPR?.url || "";
     let hasMore = true;
-    const perPage = 1;
-    let currentPage = 1;
+    const { GITHUB_COMMITS_PARAMS } = config;
+    let currentPage = GITHUB_COMMITS_PARAMS.startFromPageNo;
     let allResults: any[] = [];
     while (hasMore) {
+
+      const request = await getGithubCommitsQueryRequest(GITHUB_TOKEN, currentPage)
       // Make the API request with the token in the Authorization header
-      const response = await axios.get(`${prUrl}/commits`, {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-        },
-        params: {
-          per_page: perPage,
-          page: currentPage,
-        },
-        paramsSerializer: (params) => {
-          return qs.stringify(params, { indices: false });
-        },
-      });
+      const response = await axios.get(`${commitsUrl}`, request);
       //console.log(`Response data COMMITS::::::::::`, response.data);
-      allResults = [...allResults, ...response.data];
+      const commitsData: CommitData = response.data;
+
+      validateCommitData(commitsData);
+
+      allResults.push(commitsData);
       if (
         !response.headers.link ||
         !response.headers.link.includes('rel="next"')
@@ -106,40 +95,19 @@ export async function getGithubPullRequestCommits(githubPR: any): Promise<any> {
     }
     return allResults;
   } catch (error: any) {
-    if (error instanceof GithubError) {
-      ghLogger.error(`[${error.status}] ${error.message} ${error.url}`);
-    } else {
-      ghLogger.error("An unknown error occurred");
-    }
-    return {
-      status: error.status,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: error.status, message: error.message }),
-    };
+    throw new GithubError(error?.status, error?.message, error?.url);
   }
 }
 
-
-export async function getGithubPullRequest(prUrl: string): Promise<any> {
+export async function getGithubPullRequest(prUrl: string): Promise<PullRequestData> {
   try {
-
+    logger.warn(`Github Pull Request URL :: ${prUrl}`);
+    const headers = await getGithubHeaders(GITHUB_TOKEN);
     // Make the API request with the token in the Authorization header
-    const response = await axios.get(prUrl, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-      }
-    });
+    const response = await axios.get(prUrl, headers);
+    logger.info(`Fetched Github pull request from ${prUrl}`);
     return response.data;
   } catch (error: any) {
-    if (error instanceof GithubError) {
-      ghLogger.error(`[${error.status}] ${error.message} ${error.url}`);
-    } else {
-      ghLogger.error("An unknown error occurred");
-    }
-    return {
-      status: error.status,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: error.status, message: error.message }),
-    };
+    throw new GithubError(error?.status, error?.message, error?.url);
   }
 }
