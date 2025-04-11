@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { locals } from "../helpers/locals";
 import { CommitData, PullRequestData } from "../interface/github";
-import { ghLogger } from "../wlogger";
+import { logger } from "../wlogger";
 
 const ghDir = path.join(__dirname, "../../../stubs/github");
 const jiraDir = path.join(__dirname, "../../../stubs/jira");
@@ -24,7 +24,7 @@ export async function storePullRequest(pullRequest: PullRequestData) {
   }
   pullRequests.push({ type: "pull_request", data: pullRequest });
   fs.writeFileSync(filePath, JSON.stringify(pullRequests, null, 2));
-  ghLogger.info(`Pull request #${pullRequest.number} stored.`);
+  logger.info(`Pull request #${pullRequest.number} stored.`);
 }
 
 export async function storeGithubPullRequest(
@@ -44,7 +44,7 @@ export async function storeGithubPullRequest(
     data: pullRequest,
   });
   fs.writeFileSync(filePath, JSON.stringify(pullRequests, null, 2));
-  ghLogger.info(
+  logger.info(
     `Pull request #${pullRequest.number} for Jira Issue Id #${jiraIssueId}stored.`
   );
 }
@@ -59,7 +59,7 @@ export async function storeJiraIssues(jiraReuest: any) {
   }
   pullRequests.push({ type: "jira_issues", data: jiraReuest });
   fs.writeFileSync(filePath, JSON.stringify(pullRequests, null, 2));
-  ghLogger.info(`Jira issues #${jiraReuest.key} stored.`);
+  logger.info(`Jira issues #${jiraReuest.key} stored.`);
 }
 
 export async function storeCommits(prNumber: number, commits: CommitData[]) {
@@ -72,5 +72,5 @@ export async function storeCommits(prNumber: number, commits: CommitData[]) {
   }
   allCommits.push({ type: "commits", pr: prNumber, data: commits });
   fs.writeFileSync(filePath, JSON.stringify(allCommits, null, 2));
-  ghLogger.info(`Commits for pull request #${prNumber} stored.`);
+  logger.info(`Commits for pull request #${prNumber} stored.`);
 }

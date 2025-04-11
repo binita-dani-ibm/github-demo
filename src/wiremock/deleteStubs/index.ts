@@ -1,9 +1,9 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
-
+import config from "../../config";
 dotenv.config();
 
-const { WIREMOCK_URL, WIREMOCK_TOKEN } = process.env;
+const { WIREMOCK_URL, WIREMOCK_TOKEN } = config;
 
 // Function to delete all WireMock stubs
 async function deleteAllStubs() {

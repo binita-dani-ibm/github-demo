@@ -192,6 +192,7 @@ const jiraListIssueMapping = {
       "key": "ED-1",
       "self": "https://your-domain.atlassian.net/rest/api/3/issue/10002"
     }
-  ]
+  ],
+  "nextPageToken": "2222223345555"
 }
 export default jiraListIssueMapping;

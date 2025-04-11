@@ -17,6 +17,7 @@ interface User {
   received_events_url: string;
   type: string;
   site_admin: boolean;
+  user_view_type: string;
 }
 interface Label {
   id: number;
@@ -66,7 +67,7 @@ interface License {
   url: string;
   spdx_id: string;
   node_id: string;
-  html_url: string;
+  html_url?: string;
 }
 interface Permissions {
   admin: boolean;
@@ -122,7 +123,7 @@ interface Repo {
   teams_url: string;
   trees_url: string;
   clone_url: string;
-  mirror_url: string;
+  mirror_url: string | null;
   hooks_url: string;
   svn_url: string;
   homepage: string;
@@ -140,24 +141,27 @@ interface Repo {
   has_wiki: boolean;
   has_pages: boolean;
   has_downloads: boolean;
+  has_discussions: boolean;
   archived: boolean;
   disabled: boolean;
   visibility: string;
   pushed_at: string;
   created_at: string;
   updated_at: string;
-  permissions: Permissions;
-  allow_rebase_merge: boolean;
-  template_repository: string | null;
-  temp_clone_token: string;
-  allow_squash_merge: boolean;
-  allow_auto_merge: boolean;
-  delete_branch_on_merge: boolean;
-  allow_merge_commit: boolean;
-  subscribers_count: number;
-  network_count: number;
+  permissions?: Permissions;
+  allow_rebase_merge?: boolean;
+  template_repository?: string;
+  temp_clone_token?: string;
+  allow_squash_merge?: boolean;
+  allow_auto_merge?: boolean;
+  delete_branch_on_merge?: boolean;
+  allow_merge_commit?: boolean;
+  subscribers_count?: number;
+  network_count?: number;
   license: License;
+  allow_forking: boolean;
   forks: number;
+  web_commit_signoff_required: boolean;
   open_issues: number;
   watchers: number;
 }
@@ -199,16 +203,24 @@ export interface PullRequestData {
   locked: boolean;
   title: string;
   user: User;
-  body: string;
+  body: string | null;
   labels: Label[];
-  milestone: Milestone;
+  milestone: Milestone | null;
   active_lock_reason: "too heated" | "other" | null;
   created_at: string;
   updated_at: string;
   closed_at: string;
   merged_at: string;
+  merged: boolean;
   merge_commit_sha: string;
-  assignee: User;
+  mergeable: boolean | null;
+  rebaseable: boolean | null;
+  mergeable_state: string;
+  merged_by: User | null;
+  assignee:  User | null;
+  comments: number;
+  review_comments: number;
+  maintainer_can_modify: boolean;
   assignees: User[];
   requested_reviewers: User[];
   requested_teams: Team[];
@@ -218,6 +230,12 @@ export interface PullRequestData {
   author_association: "OWNER" | "COLLABORATOR" | "CONTRIBUTOR" | "NONE"; // Assuming these are the possible values
   auto_merge: boolean | null;
   draft: boolean;
+  reactions?: GithubReactions;
+  sub_issues_summary?: GithubSubIssuesSummary
+  commits: number,
+  additions: number,
+  deletions: number,
+  changed_files: number,
 }
 
 interface UrlSha {
@@ -259,4 +277,24 @@ export interface CommitData {
   author: User;
   committer: User;
   parents: UrlSha[];
+}
+
+interface GithubSubIssuesSummary {
+  total: number;
+  completed: number;
+  percent_completed: number;
+}
+
+
+interface GithubReactions {
+  url: string;
+  total_count: number;
+  "+1": number;
+  "-1": number;
+  laugh: number;
+  hooray: number;
+  confused: number;
+  heart: number;
+  rocket: number;
+  eyes: number;
 }

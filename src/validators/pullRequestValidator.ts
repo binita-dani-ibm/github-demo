@@ -7,6 +7,11 @@ import {
   _numReqSchema,
   _boolReqSchema,
   _isoDateReqSchema,
+  _stringNullSchema,
+  _stringOptSchema,
+  _boolOptSchema,
+  _numOptSchema,
+  _boolNullSchema,
 } from "./schema";
 import { GithubError } from "../errors/githubError";
 
@@ -31,6 +36,7 @@ const UserSchema = objectSchema({
   received_events_url: _stringReqSchema,
   type: _stringReqSchema,
   site_admin: _boolReqSchema,
+  user_view_type: _stringReqSchema
 });
 
 const LabelSchema = objectSchema({
@@ -85,7 +91,7 @@ const LicenseSchema = objectSchema({
   url: _stringReqSchema,
   spdx_id: _stringReqSchema,
   node_id: _stringReqSchema,
-  html_url: _stringReqSchema,
+  html_url: _stringOptSchema,
 });
 
 // Define the Permissions schema
@@ -145,7 +151,7 @@ const RepoSchema = objectSchema({
   teams_url: _stringReqSchema,
   trees_url: _stringReqSchema,
   clone_url: _stringReqSchema,
-  mirror_url: _stringReqSchema,
+  mirror_url: _stringNullSchema,
   hooks_url: _stringReqSchema,
   svn_url: _stringReqSchema,
   homepage: _stringSchema.allow(null),
@@ -163,24 +169,27 @@ const RepoSchema = objectSchema({
   has_wiki: _boolReqSchema,
   has_pages: _boolReqSchema,
   has_downloads: _boolReqSchema,
+  has_discussions: _boolReqSchema,
   archived: _boolReqSchema,
   disabled: _boolReqSchema,
   visibility: _stringReqSchema.valid("public", "private", "internal"),
   pushed_at: _isoDateReqSchema,
   created_at: _isoDateReqSchema,
   updated_at: _isoDateReqSchema,
-  permissions: PermissionsSchema.required(),
-  allow_rebase_merge: _boolReqSchema,
-  template_repository: _stringReqSchema.allow(null),
-  temp_clone_token: _stringReqSchema,
-  allow_squash_merge: _boolReqSchema,
-  allow_auto_merge: _boolReqSchema,
-  delete_branch_on_merge: _boolReqSchema,
-  allow_merge_commit: _boolReqSchema,
-  subscribers_count: _numReqSchema,
-  network_count: _numReqSchema,
+  permissions: PermissionsSchema.optional(),
+  allow_rebase_merge: _boolOptSchema,
+  template_repository: _stringOptSchema,
+  temp_clone_token: _stringOptSchema,
+  allow_squash_merge: _boolOptSchema,
+  allow_auto_merge: _boolOptSchema,
+  delete_branch_on_merge: _boolOptSchema,
+  allow_merge_commit: _boolOptSchema,
+  subscribers_count: _numOptSchema,
+  network_count: _numOptSchema,
   license: LicenseSchema.required(),
+  allow_forking: _boolReqSchema,
   forks: _numReqSchema,
+  web_commit_signoff_required: _boolReqSchema,
   open_issues: _numReqSchema,
   watchers: _numReqSchema,
 });
@@ -238,9 +247,9 @@ const PullRequestDataSchema = objectSchema({
   locked: _boolReqSchema,
   title: _stringReqSchema,
   user: UserSchema.required(),
-  body: _stringReqSchema,
+  body: _stringNullSchema,
   labels: arrItemReqSchema(LabelSchema),
-  milestone: MilestoneSchema.required(),
+  milestone: MilestoneSchema.allow(null),
   active_lock_reason: _stringReqSchema
     .valid("too heated", "other", null)
     .allow(null),
@@ -248,8 +257,20 @@ const PullRequestDataSchema = objectSchema({
   updated_at: _isoDateReqSchema,
   closed_at: _isoDateReqSchema.allow(null),
   merged_at: _isoDateReqSchema.allow(null),
+  merged: _boolReqSchema,
   merge_commit_sha: _stringReqSchema,
-  assignee: UserSchema.required(),
+  mergeable: _boolNullSchema,
+  rebaseable: _boolNullSchema,
+  mergeable_state: _stringReqSchema,
+  merged_by: UserSchema.allow(null),
+  assignee: UserSchema.allow(null),
+  comments: _numReqSchema,
+  review_comments: _numReqSchema,
+  maintainer_can_modify: _boolReqSchema,
+  commits: _numReqSchema,
+  additions: _numReqSchema,
+  deletions: _numReqSchema,
+  changed_files: _numReqSchema,
   assignees: arrItemReqSchema(UserSchema),
   requested_reviewers: arrItemReqSchema(UserSchema),
   requested_teams: arrItemReqSchema(TeamSchema),
@@ -273,6 +294,18 @@ const PullRequestArraySchema = arrItemSchema(PullRequestDataSchema);
 export function validateResponse(response: any) {
   const { error, value } = PullRequestArraySchema.validate(response);
   if (error) {
+    throw new GithubError("400", "Invalid response structure", "");
+  }
+  // You can also return the validated response if you want
+  return value;
+}
+
+
+// Function to validate the response
+export function validateGithubPullRequestResponse(response: any) {
+  const { error, value } = PullRequestDataSchema.validate(response);
+  if (error) {
+    console.log(`error :::`, error);
     throw new GithubError("400", "Invalid response structure", "");
   }
   // You can also return the validated response if you want

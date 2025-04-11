@@ -27,8 +27,21 @@ const config = {
     sort: "updated",
     direction: "desc",
   },
-  WIREMOCK_URL: "https://vmgithub.wiremockapi.cloud",
-  WIREMOCK_TOKEN: "wmcp_eyg49_b004d468310322df0163f060d54c7bb5_9e7f31f0",
-  WIREMOCK_REPO_NAME: "wiremock-repo"
+  GITHUB_COMMITS_PARAMS: {
+    per_page: 5,
+    startFromPageNo: 1
+  },
+  JIRA_PR_PARAMS: {
+    jql: `project=`,
+    nextPageToken: null,
+    maxResults: 1,
+    fields: "*all"
+  },
+  GITHUB_API_URL: "https://api.github.com",
+  WIREMOCK_URL: "https://vm-github.wiremockapi.cloud",
+  WIREMOCK_TOKEN: "wmcp_2v6gq_bd790d1ba0d367ddc9ff009051329f6f_613452f1",
+  GITHUB_REPO_NAME: "wiremock-repo",
+  JIRA_SEARCH_URL: "/rest/api/3/search/jql",
+  GITHUB_SEARCH_URL: "/search/issues"
 };
 export default config;

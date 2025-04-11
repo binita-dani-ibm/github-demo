@@ -78,8 +78,6 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-export const ghLogger = wLogger({ logName: "github", level: "silly" });
-export const jLogger = wLogger({ logName: "jira", level: "silly" });
-export const wmLogger = wLogger({ logName: "wiremock", level: "silly" });
+export const logger = wLogger({ logName: "logger", level: "silly" });
 
 export default wLogger;

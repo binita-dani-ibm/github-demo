@@ -23,6 +23,10 @@ export const _tokenSchema = _stringSchema.token().length(32).required()
 
 export const _stateOptSchema = _stringSchema.valid('open', 'closed', 'all').optional();
 export const _stringOptSchema = _stringSchema.optional();
+export const _boolOptSchema = _boolSchema.optional();
+export const _boolNullSchema = _boolSchema.allow(null);
+export const _numOptSchema = _numSchema.optional();
+export const _stringNullSchema = _stringSchema.allow(null);
 export const _sortOptSchema =  _stringSchema.valid('created', 'updated', 'popularity', 'long-running').optional();
 export const _headOptSchema= _stringSchema.pattern(/^([\w-]+):([\w-]+)$/).optional();
 export const _perPageOptSchema = _integerSchema.max(100).optional();
